@@ -1,0 +1,29 @@
+# 实际工作记录与本地环境绑定，不上传远程
+# 日期目录（YYYY-MM / YYYY-MM-DD）按需在本地记录，不纳入本远程仓库
+/20[0-9][0-9]-[0-9][0-9]/
+
+# 临时目录与无关内容不纳入 git
+temp/
+*_temp/
+*.tmp
+*.log
+*.bak
+
+# 大文件 / 二进制（确需纳入的当天附件请放 YYYY-MM/YYYY-MM-DD/file/ 并确认体积）
+*.zip
+*.tar
+*.tar.gz
+*.7z
+*.rar
+*.bin
+*.h5
+*.parquet
+*.feather
+
+# 系统 / 编辑器
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/
+*.swp
