@@ -6,7 +6,7 @@
 |------|------|
 | 日期 | 2026-09-10 |
 | 项目/模块 | 文字九州修仙（godot / text-turn-game，工程名 TextTurnGame） |
-| 状态 | 进行中（镇妖塔战后对话卡死已修复并 push（`193cb091`）；需求①纵深缩放已实现（`4d5c7a8a`）；**需求②加高 20% + 选中卡偏上 40% + 不对称纵深已实现（`041718e4`），均未 push**） |
+| 状态 | 进行中（镇妖塔战后对话卡死已修复并 push（`193cb091`）；需求①②③已实现（`4d5c7a8a`/`041718e4`/`ff4af050`），均未 push） |
 | 预估耗时 | 待评估（需求条目确定后给出） |
 | 实际耗时 | |
 | 关键字 | #文字九州修仙 #TextTurnGame #godot #需求开发 #待需求明细 |
@@ -17,6 +17,7 @@
 > 需求自 22:53 起按条给出（飞书），已收到：
 > ① **境界卡纵深缩放**：境界弹窗卡片走廊同时可见 5 张，要求越靠近边缘的卡片越小（已实现 `4d5c7a8a`；后续被需求②取代为不对称曲线）。
 > ② **卡片区加高 20% + 天阶列表同步加高 + 不对称纵深**：卡片区/天阶列表 356→427.2；选中卡中心位于高度 40% 处（偏上，下方多露卡）；上方卡片缩放同原曲线、下方收得更快（已实现 `041718e4`）。
+> ③ **顶部云层**：用云层遮住卡片区上边界被裁切的硬边，并营造“登天”感（已实现 `ff4af050`）。
 
 ## 关联工作（文件索引）
 
@@ -50,6 +51,13 @@
   - [x] 自测：UI 断言 **ALL PASS (128 checks)**、境界效果回归 **73 checks**、几何探针底边差 0.0
   - [ ] 等用户看截图确认（是否调整不对称幅度、是否因顶部上移需改属性弹窗）
   - [ ] 确认后 push
+- [ ] 【需求③】卡片区顶部云层（遮住卡片上边界硬切 + 登天感）
+  - [x] 新增 `src/ui/stage_cloud_layer.gd/.tscn`：`Mist`（弹窗背景色上浓下透渐变，融边）+ `CloudBack`/`CloudFront`（两层横飘云雾粒子，复用 `texture_cloud.tres`）
+  - [x] 接入 `stage_dialog_control.tscn`：作为 `Back` 子节点置于 `CardZone` 之后（画在卡片之上，且不受 `_layout_cards()` 重排影响）
+  - [x] 不吃输入：层与 Mist 均 `MOUSE_FILTER_IGNORE`，卡片点击/拖动不受影响
+  - [x] 自测：UI 断言 **ALL PASS (141 checks)**（128→141，新增 13 项云层断言）；亮度/台阶/动效量化见进度记录
+  - [ ] 等用户看视频与截图反馈（云朵会轻微飘到标题上方，必要时可裁）
+  - [ ] 与①②一并 push
   - [ ] 定稿后本地提交 + 与用户确认后 push
 - [x] 同步代码到最新基线（22:47 `git fetch --prune origin`；`origin/master` = `193cb091`，本地已同步，工作区干净）
 - [ ] 需求拆解：逐条定位涉及模块/文件（UI、文案 `assets/text/text.csv`、战斗层、数据层）
@@ -304,6 +312,40 @@ if data_dialogue and data_dialogue.requires:
 
 提交 **`041718e4`**（6 files，本地**未 push**）。副作用已告知用户：内嵌时弹窗顶部从 238 上移到 166.8，会多遮住属性弹窗头部（境界弹窗自身底部已含等级/经验/突破按钮）；若需少遮可把属性弹窗整体也加高 71px（待用户定）。
 
+### 23:20 - 需求③：卡片区顶部云层（遮住上边界硬切 + 登天感）
+
+用户消息：「请你制造一个云层的效果，和当前天气里面的这个粒子效果类似，这个云层的效果用来挡住目前卡片上方边界切割的这一处，一个是为了美观，是为了制造一些登天的感觉」。
+
+**实现**（新增 2 个文件 + 接入 1 处）：
+
+| 文件 | 内容 |
+|------|------|
+| `src/ui/stage_cloud_layer.tscn/.gd`（新增） | `Mist`：竖直渐变 TextureRect（弹窗背景色 0.196 灰，alpha 0.92→0.9→0.45→0），把卡片顶部融进背景；`CloudBack`（6 颗、大而慢 7–18px/s）+ `CloudFront`（4 颗、小而快 18–40px/s）复用天气系统的 `src/ui/texture/texture_cloud.tres`，横向漂移 + 淡入淡出 |
+| `src/ui/stage_dialog_control.tscn` | `Back` 下新增 `StageCloudLayer` 实例（x 146..610，y 52..148，即与卡组区同宽、上沿高出裁切线 18px、下沿深入卡片区 78px），置于 `CardZone` 之后 |
+| `src/test/ui/test_stage_dialog_100.gd` | 新增云层用例（13 项断言） |
+
+> 放在 `CardZone` 的**兄弟节点**而不是子节点：`_layout_cards()` 会把每张卡片 `move_child(panel, -1)` 提到最前，若云层在 CardZone 内会被卡片盖住；放同级且靠后 → 稳定画在卡片之上，也不影响卡片重排/命中。
+
+**量化效果**（属性弹窗内嵌视图，像素坐标，云带 = 卡组区顶部区域）：
+
+| 指标 | 改前 | 加云层后 |
+|------|------|----------|
+| 云带亮度 p50 / p90 / max | 44 / 47 / 81 | **61 / 83 / 104** |
+| 裁切线上下各 8px 的亮度台阶 | 5.9（硬边） | **4.3**（基本消失） |
+| 云带 2 秒像素变化（平均绝对差 / >8 像素占比） | — | 5–6.5 / 约 25% |
+
+**自测**：
+
+| # | 项 | 结果 |
+|---|----|------|
+| 1 | `godot --path . --headless -- --e2e-stage-dialog` | **ALL PASS (141 checks)**（128→141） |
+| 2 | 独立截图（`test_stage_dialog_screenshot.tscn`） | 5 张重生成（496x569）+ 内嵌 1 张（496x898） |
+| 3 | 动效录制 | 逐帧抓帧 84 张（12fps×7s）→ ffmpeg 合成 `stage-cloud-demo.mp4`（496x568, 7s, 65KB）—— *注：`--write-movie` 模式下 GPUParticles 不推进，改用普通模式抓帧* |
+
+**踩坑**：① 首版粒子密度过高（26/14 颗 + alpha 0.4/0.5），云带亮度冲到 200+，把顶部整片洗白 → 降到 6/4 颗 + alpha 0.10/0.14；② 中途一次临时 patch 残留导致 `_ready()` 里不初始化发射，粒子（与雾化）几乎不可见 → 修正为 `_ready()` 里默认开启，并且不再用入树首帧不可靠的 `is_visible_in_tree()` 做开关。
+
+提交 **`ff4af050`**（4 files，本地**未 push**）。产物：对比图 `./file/stage-dialog-cloud-layer-compare.png`（整窗）、`./file/stage-dialog-cloud-layer-zoom.png`（切线放大）、内嵌图 `./file/stage-dialog-embedded-with-cloud.png`、视频 `./file/stage-cloud-demo.mp4`；已发飞书（另附更正消息说明提交哈希）。
+
 ## 问题与阻塞
 
 | 问题 | 状态 | 备注 |
@@ -319,6 +361,10 @@ if data_dialogue and data_dialogue.requires:
 | `./file/stage-dialog-card-depth-compare.png` | 境界卡纵深缩放三档对比（左=现状 / 中=方案A / 右=方案B），2026-09-10 23:00 |
 | `./file/stage-dialog-taller-layout-compare.png` | 需求②新布局对比（左=旧 356 对称 / 右=新 427.2 不对称），2026-09-10 23:08 |
 | `./file/stage-dialog-embedded-new-layout.png` | 需求②新布局在属性弹窗内的实际效果（内嵌，496x898），2026-09-10 23:08 |
+| `./file/stage-dialog-embedded-with-cloud.png` | 需求③加云层后内嵌效果（496x898），2026-09-10 23:20 |
+| `./file/stage-dialog-cloud-layer-compare.png` | 需求③云层前后对比（整窗：左无云/右有云），2026-09-10 23:20 |
+| `./file/stage-dialog-cloud-layer-zoom.png` | 需求③云层前后对比（裁切线放大），2026-09-10 23:20 |
+| `./file/stage-cloud-demo.mp4` | 需求③云层动效视频（496x568，12fps×7s），2026-09-10 23:20 |
 | `./file/stage-dialog-card-depth-compare-smaller.png` | 境界卡纵深缩放五档对比（现状/A/B 与更小的 C/D），2026-09-10 23:02 |
 | `./file/stage-dialog-layout-gap.png`、`stage-dialog-names-620x640.png`、`stage-dialog-card-desc-padding.png`、`stage-dialog-exp-label-max.png`、`stage-dialog-heti-no-prefix.png` | job4 境界弹窗系列截图（布局/改名/贴边/满级经验/合体前缀） |
 | `./file/ttg-startpage.png` | 项目首屏（job3） |
@@ -356,3 +402,4 @@ if data_dialogue and data_dialogue.requires:
 | 2026-09-10 23:00 | 需求①（境界卡越靠边越小）实现：`SCALE_BY_DIST` 阶梯曲线 + `_depth_scale()` 级间插值；UI 断言 118 全绿；出三档对比图并发飞书，等用户选档后提交 |
 | 2026-09-10 23:02 | 用户「再小一点呢」→ 追加 C/D 两档并渲染五格对比图发飞书；源码还原到 A（`4d5c7a8a`），待用户定档（及是否同步收紧纵深间距） |
 | 2026-09-10 23:08 | 需求②实现：卡片区/天阶列表 +20%（427.2，行高 38.4）、弹窗 620x711.2、选中卡在 40% 处、上下不对称缩放（上缓下陡）、内嵌偏移同步适配；UI 128 项 + 境界回归 73 项全绿；提交 `041718e4`（未 push），出对比图与内嵌图发飞书 |
+| 2026-09-10 23:20 | 需求③实现：卡片区顶部云层（背景色雾化融边 + 两层横飘云雾粒子），云带亮度 44→61、硬边台阶 5.9→4.3；UI 断言 141 项全绿；出整窗/放大对比图 + 内嵌图 + 7 秒动效视频发飞书；提交 `ff4af050`（未 push） |
