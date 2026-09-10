@@ -109,6 +109,14 @@ temp 与 archive **同样使用 `YYYY-MM/YYYY-MM-DD/`**，与 `work_record` 日�
 - 同一天多个 job 用独立文件，避免单文件过长
 - 附件文件：放在 `file/` 下，名称可带简短语义（如 `diagram.png`、`error-log.txt`）
 
+## 项目索引（常用项目）
+
+> 记录会反复涉及的代码项目，便于后续 job 直接引用。新增项目追加到表中，并在对应 job 里写明具体改动。
+
+| 项目名称 | 代码路径 | 引擎 / 技术栈 | 远端仓库 | 备注 |
+|----------|----------|---------------|----------|------|
+| **文字九州修仙**（工程名 `TextTurnGame`） | `D:\godot\projects\text-turn-game` | Godot 4.6（`gl_compatibility`）/ GDScript | `https://gitee.com/sdf2311d/text-turn-game.git`（分支 `master`） | 纯文字修仙 RPG：自走棋 + 回合制、挂机、单机/局域网/联网。导出 Android（`com.mbli.textjiuzhougame`）与 Windows → `D:\godot\out\`。**后续可能基于此项目继续开发**；首次接入与运行验证见 `2026-09/2026-09-10/job3.md` |
+
 ## Git 管理
 
 - 本目录（`work_record`）使用 git 管理，便于按时间追溯记录变更。
