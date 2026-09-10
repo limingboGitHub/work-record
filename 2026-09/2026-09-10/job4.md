@@ -6,10 +6,10 @@
 |------|------|
 | 日期 | 2026-09-10 |
 | 项目/模块 | 文字九州修仙（godot / text-turn-game，工程名 TextTurnGame） |
-| 状态 | 已完成（待用户真机验收） |
+| 状态 | 已完成（19:30 已推送 `f889a799`；仅剩真机验收） |
 | 预估耗时 | 0.5h |
 | 实际耗时 | ~0.8h |
-| 关键字 | #文字九州修仙 #TextTurnGame #godot #需求开发 #境界弹窗 #文案改名 #布局修复 |
+| 关键字 | #文字九州修仙 #TextTurnGame #godot #需求开发 #境界弹窗 #文案改名 #布局修复 #文字贴边 |
 
 ## 任务描述
 
@@ -22,7 +22,7 @@
 | 关系 | 文件路径 | 说明 |
 |------|----------|------|
 | 前序（续做来源） | `./job3.md` | 同项目的前置 job：定位项目、拉取代码、启动主场景截图验证 |
-| 后续（续做去向） | —— | 本 job 已闭环（需求实现 + 自测 + 提交），无跨天续做；仅剩 push/设备验收待确认 |
+| 后续（续做去向） | —— | 本 job 已闭环（需求实现 + 自测 + 提交 + push），无跨天续做；仅剩设备真机验收待确认 |
 
 ## 待办清单
 
@@ -32,7 +32,7 @@
 - [x] 定位需求涉及的模块 / 文件（`assets/text/text.csv`、`src/ui/stage_dialog_control.*`、两个父弹窗）
 - [x] 实现改动（文案 7 处 + 布局 4 处）
 - [x] 自测：重编译翻译 + StageUITest 101 checks + RealmTest 73 checks + 布局探针/像素核对
-- [x] 收尾：更新本 job、本地提交 `da29ca1b`（push 与设备同步待用户确认）
+- [x] 收尾：更新本 job、本地提交 `da29ca1b`、`62bceb7d`、`f889a799`（19:30 已全部 push 到 gitee）
 
 ## 进度记录
 
@@ -144,6 +144,58 @@
 | 像素核对 | 对截图列向采样 | 天阶面板底边与底部面板顶边之间是对话框背景，存在可辨间隙 |
 | 视觉产物 | `test_stage_dialog_screenshot.gd`（裁剪区 496x503→496x512） | 5 张截图重生成；另出内嵌属性弹窗图，已发飞书 |
 
+### 19:30 - 推送远端
+
+用户回复「推送」，执行 `git fetch --prune origin` + `git push origin master`：
+
+| 项 | 值 |
+|----|-----|
+| 推送前远端 | `da29ca1b`（比预期早一步：`da29ca1b` 已在远端，不是仅本地） |
+| 推送 | `da29ca1b..f889a799  master -> master`（`62bceb7d`、`f889a799` 两个新提） |
+| 推送后 | `origin/master` = `f889a799`，工作区干净（仅遗留未跟踪 `update_code.sh`） |
+| 待办 | 设备真机验收（如需：`bash sync_android.sh`） |
+
+### 19:20 - 追加修复：合体说明去前缀 + 满级不再隐藏经验百分比
+
+用户追加两项反馈，均已修复并提交 **`f889a799`**：
+
+| # | 反馈 | 定位 | 修复 |
+|---|------|------|------|
+| 2 | 人物/宠物的合体描述不要「（人物）/（宠物）」前缀 | `assets/text/text.csv` 的 `ATTRIBUTE_HETI_GUIWEI_DESC`（人物）、`ATTRIBUTE_HETI_CHUANCHENG_DESC`（宠物） | 删除前缀；人物/宠物由卡组变体（`STAGE_UNLOCK_HETI` vs `_PET`）与短名（元神归位/合体传承）区分，前缀冗余 |
+| 3 | 满级后经验槽右侧文本被隐藏，不需要隐藏 | `src/ui/stage_dialog_control.gd` `check_and_handle_level_max()` 里 `exp_percent_label.hide()` | 删除 hide/show，满级时「经验：x%」照常显示 |
+
+自测：
+
+| 项 | 结果 |
+|----|------|
+| 重编译翻译 | `godot --headless --path . --import`；`.translation` 中「（人物）/（宠物）」命中数 **0** |
+| UI 断言 | 新增 `pet85_heti_desc_no_prefix`、`human85_heti_desc_no_prefix`、`lv100_exp_percent_text_kept`（并把 `lv100_exp_percent_hidden` 反转为 `visible`）→ **ALL PASS (110 checks)** |
+| 境界效果战斗层回归 | `--e2e-realm-test` **ALL PASS (73 checks)** |
+| 截图像素核对 | lv100 经验文本区（dialog x462..602, y444..470）现有文字像素 74 个（修复前该区无文字）；lv53 对照 94 个 |
+| 备注 | 满级时文本显示的是自然计算结果（测试人物为空经验→`经验：0%`；实战中为槽内实际比例） |
+
+### 19:12 - 追加修复：卡片「境界突破描述」文字右侧贴边
+
+用户反馈「卡片中的境界突破描述右边需要留点边距，否则右边贴边了」。定位为坐标叠加缺陷：
+
+| 项 | 值 |
+|----|-----|
+| 现象 | 卡内说明文字左侧有 16px 留白、右侧 0px，长行/换行后的文字紧贴卡片右边框 |
+| 原因 | `_build_stage_cards()` 里三行 Label 的 `position.x = 8`，而父 `content` 已被 PanelContainer 的 `content_margin_left = 8` 内缩——8+8 叠加到左侧，右侧因此归零 |
+| 修复 | 抽出 `CARD_PADDING := 8.0` 常量（同时用于 `content_margin_left/right` 与 `inner_width = CARD_SIZE.x - CARD_PADDING*2`），三行 Label 的 `position.x` 改为 **0** |
+| 副带效果 | 境界名/神通短名原中心偏右 8px，现回到卡片正中（卡中心 x=182） |
+
+自测：
+
+| 项 | 结果 |
+|----|------|
+| 布局断言（新增 6 项） | 修复前 `左/右边距 = 16.0/0.0 px`（3 项 fail）；修复后 `8.0/8.0 px`，**StageUITest ALL PASS (107 checks)**（101→107） |
+| 境界效果战斗层回归 | `--e2e-realm-test` **ALL PASS (73 checks)** |
+| 截图像素核对（496x512，0.8 缩放） | lv100 满级卡文字区最右列距右边框 10.0 逻辑px（左右对称）；lv53 左/右 16.2/13.8 px，均不再贴边 |
+| 截图重生成 | `test_stage_dialog_screenshot.gd` 5 张（另 5 张未变：`6_attr_dialog_embedded.png` 非本次脚本输出，未重跑） |
+
+提交：**`62bceb7d`** `fix(境界): 境界卡说明文字右侧贴边——子节点坐标与 content_margin 叠加`（2 files changed，本地提交，未 push）。
+
 ### 19:05 - 提交
 
 | 项 | 值 |
@@ -196,6 +248,9 @@
 |------|------|
 | `./file/stage-dialog-names-620x640.png` | lv100 满级弹窗：11 张卡全部解锁，可见新短名（道基渐稳/金丹固法/元婴护体）与精简后的说明 |
 | `./file/stage-dialog-layout-gap.png` | lv53 弹窗：天阶/卡组区与底部面板留 12px 间距（布局修复验收图） |
+| `./file/stage-dialog-card-desc-padding.png` | lv100 满级弹窗（`4_lv100_max.png`）：卡片说明文字左右各留 8px，不再贴右边框 |
+| `./file/stage-dialog-exp-label-max.png` | lv100 满级弹窗：经验槽右侧「经验：x%」不再隐藏（修复 3 验收图） |
+| `./file/stage-dialog-heti-no-prefix.png` | 宠物 lv85 弹窗：合体说明已无「（宠物）」前缀（修复 2 验收图） |
 
 ## 大文件索引（archive）
 
@@ -211,7 +266,7 @@
 
 ## 明日计划 / 后续跟进
 
-- [ ] 征得用户同意后 `git push origin master`（`da29ca1b`），并按需 `bash sync_android.sh` 同步到设备真机验收
+- [x] 征得用户同意后 `git push origin master`（`f889a799`；`da29ca1b` 推送前已在远端）；仍待按需 `bash sync_android.sh` 同步到设备真机验收
 - [ ] 若用户只想要境界弹窗改名、不希望动属性帮助/buff 名，回滚 `ATTRIBUTE_YUANYING_REVIVE`、`EFFECT_100042_NAME` 两处（改回「元婴复活」即可）
 - [ ] cc-connect 多行消息截断问题：另开 job 定位修复（换行处丢内容）
 - [ ] 需求做完/未做完时的跨天衔接：新建当天 `jobN.md`，与本文件在「关联工作」互指
@@ -224,3 +279,6 @@
 | 2026-09-10 18:25 | 用户复述需求「境界效果名称修改」，仍缺具体新名称；已回发现状清单待其确认对照表 |
 | 2026-09-10 18:32 | 发现并定位「多行消息被截断」链路缺陷；从 cc-connect 日志恢复需求原文 |
 | 2026-09-10 19:05 | 需求实现完成（文案 7 处 + 布局 4 处），自测全绿，本地提交 `da29ca1b`；job 收尾 |
+| 2026-09-10 19:30 | `git push origin master`：`da29ca1b..f889a799`（两个修复提已上远端），job 收尾 |
+| 2026-09-10 19:20 | 追加修复：合体说明去「（人物）/（宠物）」前缀；满级后不再隐藏经验百分比，断言 107→110，提交 `f889a799` |
+| 2026-09-10 19:12 | 追加修复：卡片说明文字右侧贴边（position.x 与 content_margin 叠加），新增 6 项布局断言，提交 `62bceb7d` |

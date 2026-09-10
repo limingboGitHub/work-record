@@ -389,3 +389,14 @@ CLI 侧 `event consume` + WebSocket 已验证可连，等待后台配置后联�
 | 2026-09-10 13:01 | 修复 --auto-approve：升级使用 cc-connect 1.5.0（npm） |
 | 2026-09-10 13:05 | thinking/effort 默认改为 high |
 | 2026-09-10 13:20 | job 本地提交 git（`1c062ed`），未推远程 |
+
+### 13:25 - 关闭过程消息，只回最终结果
+
+用户反馈飞书刷屏。改 display：
+
+| 配置 | 原值 | 新值 |
+|------|------|------|
+| tool_messages | true | **false** |
+| thinking_messages | false | false |
+
+已重启 cc-connect。飞书 `/new` 后生效。
