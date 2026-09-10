@@ -388,3 +388,4 @@ CLI 侧 `event consume` + WebSocket 已验证可连，等待后台配置后联�
 | 2026-09-10 13:00 | 撤销自定义模型，改回默认 deepseek-v4-flash |
 | 2026-09-10 13:01 | 修复 --auto-approve：升级使用 cc-connect 1.5.0（npm） |
 | 2026-09-10 13:05 | thinking/effort 默认改为 high |
+| 2026-09-10 13:20 | job 本地提交 git（`1c062ed`），未推远程 |
