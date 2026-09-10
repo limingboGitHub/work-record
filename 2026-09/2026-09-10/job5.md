@@ -38,7 +38,7 @@
   - [x] 定位：`src/ui/stage_dialog_control.gd` 卡片走廊 `_layout_cards()`，原为线性 `1 - dist*0.14`（下限 0.5）
   - [x] 实现：改为阶梯曲线 `SCALE_BY_DIST` + 级间插值 `_depth_scale()`
   - [x] 自测：`--e2e-stage-dialog` **ALL PASS (118 checks)**（110→118）；截图 5 张重生成
-  - [ ] 等用户选定档位（A `1.0/0.84/0.64/0.46` 或 B `1.0/0.78/0.55/0.37`），必要时继续调值
+  - [ ] 等用户选定档位（A `1.0/0.84/0.64/0.46`、B `1.0/0.78/0.55/0.37`，或更小的 C `1.0/0.70/0.45/0.27` / D `1.0/0.62/0.36/0.20`），必要时继续调值（含是否同步收紧纵深处间距）
   - [ ] 定稿后本地提交 + 与用户确认后 push
 - [x] 同步代码到最新基线（22:47 `git fetch --prune origin`；`origin/master` = `193cb091`，本地已同步，工作区干净）
 - [ ] 需求拆解：逐条定位涉及模块/文件（UI、文案 `assets/text/text.csv`、战斗层、数据层）
@@ -217,7 +217,7 @@ if data_dialogue and data_dialogue.requires:
 
 下一步：等用户给出具体需求条目（期望效果 + 验收标准）后，进入拆解、定位模块与排期实施。
 
-### 23:02 - 需求①：境界卡纵深缩放（越靠边越小）——已实现，等用户选档
+### 23:00 - 需求①：境界卡纵深缩放（越靠边越小）——已实现，等用户选档
 
 用户消息（飞书）：「基于任务四，还想微调一下窗口的效果，卡片目前是能够显示5张的，我希望越靠近边缘的卡片变得更小一点」。
 
@@ -250,6 +250,19 @@ if data_dialogue and data_dialogue.requires:
 
 已 `cc-connect send --image` 发对比图 + 方案A原图到飞书，等用户选 A/B 或继续调值；**定稿前不提交、不 push**。
 
+### 23:02 - 追加更小两档 C/D（用户「再小一点呢」）
+
+用户回复「再小一点呢」→ 在 B 基础上再出两档更小的缩放曲线并渲染对比。
+
+| 档位 | 曲线（中心/±1/±2/±3） | 备注 |
+|------|----------------------|------|
+| C | 1.0/0.70/0.45/0.27/0.17/0.11 | 再小一点 |
+| D | 1.0/0.62/0.36/0.20/0.12/0.08 | 更小（接近极限） |
+
+渲染方式：临时 `sed` 改 `SCALE_BY_DIST` → 非 headless 跑 `test_stage_dialog_screenshot.tscn` → 拷图 → `git checkout --` 还原到 A（当前提交 `4d5c7a8a`），工作区保持干净。变体原图：`../work_record_temp/2026-09/2026-09-10/output/stage-dialog-depth/{baseline,A,B,C,D}/`；拼图脚本 `.../scripts/make_scale_compare_smaller.py`。像素差校验：B↔C 7690 px、C↔D 6662 px（496×512 图内），确实有可见差异。
+
+5 格对比图 `./file/stage-dialog-card-depth-compare-smaller.png`（现状/A/B/C/D）已连同 C 原图发飞书。同时提醒用户：卡片缩小后相邻卡仍按 96px 间距排布，缩得越小越会出现缝隔（D 已明显分开、不再是叠压卡组），选 C/D 建议同步收紧纵深处间距——待用户回复。
+
 ## 问题与阻塞
 
 | 问题 | 状态 | 备注 |
@@ -262,7 +275,8 @@ if data_dialogue and data_dialogue.requires:
 
 | 文件 | 说明 |
 |------|------|
-| `./file/stage-dialog-card-depth-compare.png` | 境界卡纵深缩放三档对比（左=现状 / 中=方案A / 右=方案B），2026-09-10 23:02 |
+| `./file/stage-dialog-card-depth-compare.png` | 境界卡纵深缩放三档对比（左=现状 / 中=方案A / 右=方案B），2026-09-10 23:00 |
+| `./file/stage-dialog-card-depth-compare-smaller.png` | 境界卡纵深缩放五档对比（现状/A/B 与更小的 C/D），2026-09-10 23:02 |
 | `./file/stage-dialog-layout-gap.png`、`stage-dialog-names-620x640.png`、`stage-dialog-card-desc-padding.png`、`stage-dialog-exp-label-max.png`、`stage-dialog-heti-no-prefix.png` | job4 境界弹窗系列截图（布局/改名/贴边/满级经验/合体前缀） |
 | `./file/ttg-startpage.png` | 项目首屏（job3） |
 
@@ -296,4 +310,5 @@ if data_dialogue and data_dialogue.requires:
 | 2026-09-10 20:32 | 按推荐定稿：回退方案 2，重建为单一提交 `193cb091`（仅 `dialogue_control.gd`，相对 `f889a799` +5/−3）；7 项自测全绿；待确认 push |
 | 2026-09-10 20:38 | `git push origin master`：`f889a799..193cb091`；本插单缺陷闭环（仅剩真机验收按需） |
 | 2026-09-10 22:47 | 用户提示「今天有文字九州修仙相关任务」（未附明细）→ 按约定续写 job5；同步基线（`origin/master` = `193cb091`，无新提交）；待需求明细 |
-| 2026-09-10 23:02 | 需求①（境界卡越靠边越小）实现：`SCALE_BY_DIST` 阶梯曲线 + `_depth_scale()` 级间插值；UI 断言 118 全绿；出三档对比图并发飞书，等用户选档后提交 |
+| 2026-09-10 23:00 | 需求①（境界卡越靠边越小）实现：`SCALE_BY_DIST` 阶梯曲线 + `_depth_scale()` 级间插值；UI 断言 118 全绿；出三档对比图并发飞书，等用户选档后提交 |
+| 2026-09-10 23:02 | 用户「再小一点呢」→ 追加 C/D 两档并渲染五格对比图发飞书；源码还原到 A（`4d5c7a8a`），待用户定档（及是否同步收紧纵深间距） |
