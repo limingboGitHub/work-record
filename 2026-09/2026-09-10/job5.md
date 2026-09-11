@@ -6,7 +6,7 @@
 |------|------|
 | 日期 | 2026-09-10 |
 | 项目/模块 | 文字九州修仙（godot / text-turn-game，工程名 TextTurnGame） |
-| 状态 | 进行中（镇妖塔战后对话卡死已 push（`193cb091`）；需求①②③已实现并 push（`aa776acd`）；剩真机验收（当前无 USB 设备） |
+| 状态 | 进行中（需求①②③已 push（`aa776acd`）；两项遗留已修并 push（`cc85f4fd`）；剩真机验收（当前无 USB 设备） |
 | 预估耗时 | 待评估（需求条目确定后给出） |
 | 实际耗时 | |
 | 关键字 | #文字九州修仙 #TextTurnGame #godot #需求开发 #待需求明细 |
@@ -353,6 +353,8 @@ if data_dialogue and data_dialogue.requires:
 | 需求明细未提供 | 待用户补充 | 仅有「开发一批新需求」的目标，无具体条目；需用户逐条给出期望效果与验收点 |
 | 镇妖塔战后对话卡死（全局回归） | 已修复（已 push） | 提交 `193cb091`：`dialogue_control.gd` 门禁由「重绘同一页」改为「关闭」；方案2 已回退，配置保持原样；影响面为全库 19 个同构任务 |
 | cc-connect 多行消息在换行处截断 | 未解决（链路缺陷） | 见 `./job4.md` 18:32 条目；发需求建议**单行发送**，或从 cc-connect 日志恢复原文 |
+| 既有失败：`validate_configs.py` 完整模式 5 个 `magic_artifact_*` 引用缺失 | **已解决（`cc85f4fd`）** | 实为校验器未收录 `item/magic_artifact.json`（该文件里 000001-000005 均已定义）——补 schema 后完整模式 0 错误 |
+| 既有失败：`test_stage7.gd` quest_106002 对白断言与文案不一致 | **已解决（`cc85f4fd`）** | 断言 `您来了` 自 `79040664`（06-18）陈旧；文案在 `ffdac8cc`（06-19）已改为「你来了」→ 改为一致后 `--e2e-stage 7 --e2e-ui` PASS |
 
 ## 附件（file/）
 
@@ -405,3 +407,4 @@ if data_dialogue and data_dialogue.requires:
 | 2026-09-10 23:20 | 需求③实现：卡片区顶部云层（背景色雾化融边 + 两层横飘云雾粒子），云带亮度 44→61、硬边台阶 5.9→4.3；UI 断言 141 项全绿；出整窗/放大对比图 + 内嵌图 + 7 秒动效视频发飞书；提交 `ff4af050`（未 push） |
 | 2026-09-11 07:15 | **跨天续做（详见 `../../2026-09-11/job1.md`）**：按用户反馈返工——① 走廊改回**对称**、选中卡回 **50%** 居中（`041718e4` 的 40%/不对称废止）；② 云层按天气系统重做：去掉向右初速（改原地淡入淡出）、密度 6+4→40+18，云带亮度 61→141、裁切线 100% 被云覆盖；提交 `aa776acd`（未 push）；UI 断言 134 项全绿 |
 | 2026-09-11 07:20 | 用户回「继续」→ 推送远端：`193cb091..aa776acd`（4 个提交）；`origin/master` = `aa776acd`，本地已同步、工作区干净；`adb devices` 无设备，真机验收待设备接入 |
+| 2026-09-11 09:20 | 继续清理两项遗留并 push（`cc85f4fd`）：① `validate_configs.py` 缺 `item/magic_artifact.json` 的 schema，导致 5 个 `magic_artifact_*` 被误报为「引用不存在」→ 补 schema（含 `borrow_mode`/`combat_start_buff_effects`/`threshold_invincible`/`invincible_duration` 字段），完整模式 **0 错误 7 警告**（警告为既有 `skill_passive` 未知字段）；② `test_stage7.gd` 对白断言 `您来了` → `你来了`（文案在 `ffdac8cc` 已改，断言自 `79040664` 起陈旧）→ `--e2e-stage 7 --e2e-ui` **PASS（288 断言 / 234.5s）** |

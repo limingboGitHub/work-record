@@ -6,7 +6,7 @@
 |------|------|
 | 日期 | 2026-09-11 |
 | 项目/模块 | 文字九州修仙（godot / text-turn-game，工程名 TextTurnGame） |
-| 状态 | 已完成（返工已实现、自测通过并 push：`193cb091..aa776acd`；剩真机验收，当前无 USB 设备） |
+| 状态 | 已完成（返工已实现、自测通过并 push；两项遗留（校验器误报 / stage7 陈旧断言）也已修复并 push `cc85f4fd`；剩真机验收，当前无 USB 设备） |
 | 预估耗时 | 0.5h |
 | 实际耗时 | ~0.5h（含云层重做与两次返工调试） |
 | 关键字 | #文字九州修仙 #TextTurnGame #godot #境界弹窗 #卡片走廊 #云层 #对称布局 #返工 |
@@ -36,6 +36,7 @@
 - [x] 用户回「继续」→ 已 push：`193cb091..aa776acd`（4 个提交），`origin/master` = `aa776acd`
 - [ ] 真机验收（`bash sync_android.sh`）—— 2026-09-11 07:20 检查 `adb devices` **无设备连接**，待设备接入
 - [ ] 云层浓度若需再调（太浓/太淡）：改 `color_ramp` 的 alpha 或 `amount`
+- [x] 遗留清理：`validate_configs.py` 法宝 schema 误报、`test_stage7.gd` 陈旧对白断言 → 均修并 push（`cc85f4fd`）
 
 ## 进度记录
 
@@ -85,6 +86,17 @@
 | 包含提交 | `4d5c7a8a`（纵深曲线）→ `041718e4`（加高 20% + 40% 不对称，已被返工废止）→ `ff4af050`（初版云层）→ `aa776acd`（对称 50% + 云层重做） |
 | 真机验收 | `adb devices` 无设备连接 → 本次跳过，待设备接入后 `bash sync_android.sh` |
 
+### 09:20 - 继续：清两项遗留（校验器误报 + stage7 陈旧断言）
+
+用户回「继续」（承接上一轮推送）→ 把本批之前标注的「遗留既有失败」一次性清掉，提交 **`cc85f4fd`** 并 push（`aa776acd..cc85f4fd`）：
+
+| # | 遗留项 | 原因定位 | 修法 | 验证 |
+|---|--------|----------|------|------|
+| 1 | `validate_configs.py` 完整模式报 5 个 `magic_artifact_000001~000005` 「引用不存在」 | **误报**：法宝确实定义在 `assets/config/item/magic_artifact.json`（`magic_artifacts` 下 5 条），但校验器的 `FILE_SCHEMAS` 没收这个文件 → `get_entries()` 拿不到正确 data_key，收不到这些 id | 给 `item/magic_artifact.json` 补 schema（`data_key=magic_artifacts`、复用装备必填/字段模板 + `borrow_mode`/`combat_start_buff_effects`/`threshold_invincible`/`invincible_duration`）；并在 ids 表里补 `magic_artifact` | 完整模式 **0 错误 / 7 警告**（警告为既有的 `skill_passive` 未知字段）；`--quick` 0 警告 |
+| 2 | `--e2e-stage 7 --e2e-ui` 在 quest_106002「验证对白：传功堂事务」失败 | **断言陈旧**：断言 `您来了` 是 `79040664`（06-18）写的；文案 `TEXT_DIALOGUE_106002_1` 已在 `ffdac8cc`（06-19）改成「你来了」 | 断言改为 `你来了`（保留原意图：验证译文非空且正确） | `--e2e-stage 7 --e2e-ui` → **[✓ PASS] Stage7 - 全部12个任务 (UI)（288 断言 / 234.5s）** |
+
+> 环境备注：`--e2e-stage 7 --e2e-ui` 过程中出现的 `!std::isfinite(p_size.x)` 报错来自 `src/ui/color_bar.gd:64`（角色生成时进度条尺寸非有限值），**与本次改动无关**，属既有告警。
+
 ## 问题与阻塞
 
 | 问题 | 状态 | 备注 |
@@ -92,6 +104,7 @@
 | 云层浓度是否合适 | 待用户真机/游戏内确认 | 当前云带亮度中位数 141（初版 61 被判「太稀」）；太浓/太淡可调 `color_ramp` 的 alpha 或 `amount` |
 | 4 个提交 | 已 push | `193cb091..aa776acd`，`origin/master` = `aa776acd` |
 | 真机验收 | 待设备 | `adb devices` 无设备，接入后 `bash sync_android.sh` |
+| 遗留两项（校验器误报 / stage7 断言陈旧） | 已解决 | `cc85f4fd` 已 push，`origin/master` = `cc85f4fd` |
 
 ## 附件（file/）
 
@@ -127,3 +140,4 @@
 |------|----------|
 | 2026-09-11 07:15 | 创建 job（跨天续做 job5）；实现返工：走廊对称居中 50%、云层改天气系统同款原地淡入淡出并加密（40+18 颗）；UI 断言 134 全绿；提交 `aa776acd`（未 push），出对比图/内嵌图/视频发飞书 |
 | 2026-09-11 07:20 | 按用户「继续」推送远端 `193cb091..aa776acd`（4 个提交），`origin/master` = `aa776acd`；本批闭环（真机验收待设备接入） |
+| 2026-09-11 09:20 | 清两项遗留并 push `cc85f4fd`：① 校验器补 `item/magic_artifact.json` schema（5 个误报消失，完整模式 0 错误）；② stage7 陈旧对白断言 `您来了`→`你来了`；`--e2e-stage 7 --e2e-ui` PASS（288 断言/234.5s） |
