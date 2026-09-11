@@ -1,0 +1,20 @@
+ Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+ ========== 幻音妖后技能配置探针 ==========
+ [CHECK] monster_106002 | 幻音妖后 | cfg.skill_actions=["action_100075"]
+         运行时 已学技能=["action_100075"] | 已装备主动技能=["action_100075"]
+         quality=elite is_magic=true level=65.0
+ [CHECK] monster_006003 | 幻音妖 | cfg.skill_actions=["action_100075"]
+         运行时 已学技能=["action_100075"] | 已装备主动技能=["action_100075"]
+         quality=normal is_magic=true level=63.0
+ [CHECK] monster_106001 | 千年铜尸 | cfg.skill_actions=["action_100073", "passive_000027"]
+         运行时 已学技能=["action_100073", "passive_000027"] | 已装备主动技能=["action_100073"]
+         quality=elite is_magic=false level=63.0
+ [CHECK] monster_106003 | 狰兽王 | cfg.skill_actions=["action_100080", "passive_000031"]
+         运行时 已学技能=["action_100080", "passive_000031"] | 已装备主动技能=["action_100080"]
+         quality=elite is_magic=false level=67.0
+ [CHECK] monster_106004 | 远古镇狱石魔 | cfg.skill_actions=["action_100082", "passive_000033"]
+         运行时 已学技能=["action_100082", "passive_000033"] | 已装备主动技能=["action_100082"]
+         quality=elite is_magic=false level=69.0
+ [CHECK] action_100075 解析成功: name=ATTACK_ACTION_NAME_100075 rage_cost=40 max_level=5
+ [CHECK] combat_106009 characters=["monster_106002"]
+ ========== 探针结束 ==========
