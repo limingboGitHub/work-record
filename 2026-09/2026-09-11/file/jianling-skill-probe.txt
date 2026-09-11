@@ -1,0 +1,37 @@
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+========== 上古剑灵残魂技能探针 ==========
+[CFG] monster_900025 | 上古剑灵残魂 | level=70.0 quality=epic type=boss attack_range=2.0
+[CFG] skill_actions=["action_100086", "passive_000037"]
+[CFG] enhance={ "health_max": 49932.0, "rage_max": 100.0, "physical_damage": 648.0, "magic_damage": 648.0, "defense": 960.0, "xiuwei": 2500000.0 }
+[RUN] level=70 hp_max=50622 rage_max_cfg=100.0
+[RUN] equipped=["action_100086"]
+[RUN] learned=["action_100086", "passive_000037"]
+[ACT] action_100086 ATTACK_ACTION_NAME_100086 | lv=1/5 rage_cost=120 cast=0.80 rec=0.50 release=10.0
+[ACT] text_name=万剑覆雨 | text_desc=召唤{sword_count}把残剑覆盖整个战场，每把剑造成{0}%物理伤害
+[ENT] type=sword_rain fly_target=diff_team duration=10.0 hit_interval=0.03
+[ENT] sword_count=100
+[ENT] attack_info source=physical dmg_type=physical percent=0.50 per_level=0.01
+[ENT] level_up_config={ "sword_count": { "base": 100.0, "per_level": 5.0 } }
+[ACT] has attack_effects field=false
+[PAS] passive_000037 SKILL_PASSIVE_NAME_000037 | lv=1/5 attack_effects=["effect_100089"]
+[PAS] text_name=不灭残魂 text_desc='SKILL_PASSIVE_DESC_000037'
+[EFF] effect_100089 name=不灭残魂 values=[1.0, 1.0, 0.2, 1.0] per_level=[0.0, 0.0, 0.03, 0.0]
+[EFF] effect_100089 text=死亡后{0:%}概率{1}秒后以{2:%}血量复活，每场最多{3}次
+[CMB] combat_106002 desc=上古剑灵战斗（五层最终Boss）- 上古剑灵残魂 + 双首妖狼 + 噬魂妖将×2 auto_count=false
+[CMB] monster_900025 team=enemy pos={ "min_x": 2.0, "max_x": 2.0, "min_y": 1.0, "max_y": 2.0 }
+[CMB] monster_006009 team=enemy pos={ "min_x": 1.0, "max_x": 1.0, "min_y": 2.0, "max_y": 3.0 }
+[CMB] monster_006010 team=enemy pos={ "min_x": 3.0, "max_x": 3.0, "min_y": 2.0, "max_y": 3.0 }
+[CMB] monster_006010 team=enemy pos={ "min_x": 2.0, "max_x": 2.0, "min_y": 3.0, "max_y": 3.0 }
+---- 全塔守关 Boss 主动技能怒耗对照 ----
+[TOWER] monster_106001(千年铜尸) lv=63.0 | action=action_100073 rage_cost=80 rage_max_cfg=100.0
+[TOWER] monster_106002(幻音妖后) lv=65.0 | action=action_100075 rage_cost=40 rage_max_cfg=100.0
+[TOWER] monster_106003(狰兽王) lv=67.0 | action=action_100080 rage_cost=80 rage_max_cfg=100.0
+[TOWER] monster_106004(远古镇狱石魔) lv=69.0 | action=action_100082 rage_cost=80 rage_max_cfg=100.0
+[TOWER] monster_900025(上古剑灵残魂) lv=70.0 | action=action_100086 rage_cost=120 rage_max_cfg=100.0
+[RAGE] before inject: max_value=120 (cfg rage_max=100.0)
+[RAGE] after inject(action_100086 cost=120 apply_multiplier=true): max_value=120, rage_cost_multiplier_attr=0.0
+[RAGE] 普攻+15 => 需 8 次普攻充满
+[MOB] monster_006009(双首妖狼) lv=69.0 skill_actions=["action_100084", "passive_000035"]
+[MOB] monster_006010(噬魂妖将) lv=70.0 skill_actions=["action_100085", "passive_000036"]
+PROBE DONE

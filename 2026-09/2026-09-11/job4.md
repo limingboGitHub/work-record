@@ -252,6 +252,94 @@ y=3:           魇影(2,3)
 - 验证：扩展探针至 5 场战斗（106002 + 106008~106011），**30 PASS / 0 FAIL**；`validate_configs.py` 全量通过。
 - 提交并 push：`d40d4c7d..634f6588`。
 
+## 追加（第五轮）：五层最终 Boss「上古剑灵残魂」技能核实（只读）
+
+### 需求
+
+> 「上古剑灵这个 boss 技能是怎么样的？具体什么效果」
+
+### 对象澄清
+
+- **NPC `npc_104012`「上古剑灵」**：五层任务 NPC（`dialogue_106006`「剑灵传承」），不是战斗单位。
+- **战斗 Boss = `monster_900025`「上古剑灵残魂」**：Lv70 / `epic` / `monster_type=boss` / `attack_range=2`，`combat_106002` 的敌方主将。两者是「虚影 NPC」与「其残魂」的关系（对白 `TEXT_DIALOGUE_NPC_104012_DEFAULT`：上古剑灵的虚影；`TEXT_DIALOGUE_106006_4`：战胜剑灵残魂后收剑）。
+
+### 技能总览
+
+| 类型 | id | 名称 | 运行时装载 |
+|------|----|------|-----------|
+| 主动 | `action_100086` | **万剑覆雨** | 已学 + 已装备（`equipped=[action_100086]`） |
+| 被动 | `passive_000037` | **不灭残魂**（`effect_100089`） | 已学（`learned=[action_100086, passive_000037]`） |
+
+> 配置里 `skill_actions` 同时放主动与被动 id，`res_manager.gd` 按 `passive_` 前缀分流（被动进技能背包、主动额外 `equip_skill`）——实现正常。
+
+### 主动技能：万剑覆雨（action_100086，默认 lv1/5）
+
+| 项 | 值 |
+|----|----|
+| 文案 | `ATTACK_ACTION_NAME_100086` = 万剑覆雨；描述「召唤{sword_count}把残剑覆盖整个战场，每把剑造成{0}%物理伤害」 |
+| 怒气 | **120**（全塔守关 Boss 最高：铜尸/狰兽王/石魔 80、幻音妖后 40） |
+| 时序 | 读条 0.8s → 释放 10s → 后摇 0.5s |
+| 击体 | `entity_100086`，`entity_type=sword_rain`，`entity_fly_target_type=diff_team`（只打敌方），`entity_duration=10`，`hit_interval=0.03` |
+| 数量/伤害 | `sword_count=100`（每级 +5），每把剑 **50% 物理伤害**（每级 +1%），`source_type/damage_type=physical` |
+| 附加效果 | **无**（`attack_effects` 为空）——纯伤害技能 |
+
+**实际表现**（实现层 `src/scenes/attack_effect/attack_effect_sword_rain.gd` + `attack_effect_sword_rain.tscn`）：
+
+1. 每 **0.3s 生成一波 × 每波 10 把**（`total_waves = ceil(sword_count/10)`）→ 100 把 = **10 波 / 生成窗口约 3.0s**，之后不再生成；
+2. 每把剑在战场上方**随机水平位置**出现、竖直向下飞（场景 `move_speed=500`，`horizontal_spread=700`）；
+3. 剑与敌人距离 ≤ `hit_threshold(35px)` 即命中：**该剑消失 + 结算一次 50% 物理伤害**（`target_hit` 信号 → `attack_entity_hit_handler`）；
+4. 未命中的剑穿场飞出屏幕（`despawn_y=720`）自动回收；全部回收后击体结束；
+5. 理论满命中伤害 = 100 × 50% = **5000% 物理**（多目标时按各自被撞到的剑数分摊）。
+
+**两处配置不生效（实现层忽略，非本次改动）**：
+
+- `move_speed: 400`：`DataBaseAttackEntity` 无此字段，剑雨场景用自带 `move_speed=500`；
+- `hit_interval: 0.03`：剑雨走场景自有波次逻辑（`wave_interval=0.3`），不走 `DataBaseAttackEntity` 的 `next_hit_time` 多段间隔。
+
+**怒气可达性（重点核对）**：Boss 配置 `rage_max=100` < 技能 `rage_cost=120`，但实战中**怒气槽上限取技能 rage_cost**（`combat_init_tool` 初始化即 `data_character.update_rage_value(action.rage_value, action.rage_cost, ...)` → `_update_rage_value_max()` 覆写 `max_value`）。headless 实测：注入后 `rage_value.max_value = 120`（`rage_cost_multiplier` 属性=0，无加成）→ **普攻 8 次（15/次）或受击（1% 最大生命=1 点、单次上限 20）即可放出**，不存在「怒气上限 100 < 需求 120 导致技能永远放不出」的死锁。
+
+### 被动技能：不灭残魂（passive_000037 → effect_100089，默认 lv1/5）
+
+| 项 | lv1 | 每级成长 | lv5 |
+|----|-----|----------|-----|
+| 复活概率 | 100% | — | 100% |
+| 复活延迟 | 1s | — | 1s |
+| 复活血量 | **20% 最大生命** | +3% | 32% |
+| 每场次数 | 1 次 | — | 1 次 |
+
+文案：`SKILL_PASSIVE_DESC_000037` 为**空字符串**（`""`），但效果 `effect_100089` 本身有 `EFFECT_100089_DESC`「死亡后{0:%}概率{1}秒后以{2:%}血量复活，每场最多{3}次」→ 技能说明若直接读 `skill_desc` 会显示空白（表现问题，非功能问题）。
+
+实现链：`character_effect_handler.gd` → `can_revive()` 优先检查 `effect_100089` → `_check_revive_effect()`（概率 100%、次数按 4 值格式取 index 3=1）→ `process_reviving()`（1s 后按 `hp_max × 20%` 回血并回到 IDLE）。
+
+### 本战其他成员（同一场战斗的完整构成）
+
+| 位 | 怪物 | 等级 | 主动技能 | 被动 |
+|----|------|------|----------|------|
+| Boss | `monster_900025` 上古剑灵残魂 | 70 | `action_100086` 万剑覆雨（120 怒，剑雨） | `passive_000037` 不灭残魂 |
+| 普通 | `monster_006009` 双首妖狼 | 69 | `action_100084` 双噬怒击（同时打 2 目标，命中 2 个回 50% 怒气） | `passive_000035` 怒意叠锋 |
+| 普通×2 | `monster_006010` 噬魂妖将 | 70 | `action_100085` 噬灵爆焰（法术伤害 + 减目标 30% 伤害抵抗） | `passive_000036` 咒音回弹 |
+
+### 证据链
+
+| # | 层面 | 证据 |
+|---|------|------|
+| 1 | 怪物配置 | `assets/config/monster/monster_900025.json`：`level=70`、`boss`、`epic`、`attack_range=2`、`skill_actions=[action_100086, passive_000037]` |
+| 2 | 主动技能配置 | `skill_action.json` → `action_100086`：万剑覆雨，`rage_cost=120`、`cast_time=0.8`、`recovery_time=0.5`、`release_duration=10`；击体 `entity_type=sword_rain`、`sword_count=100`、`damage_percent=0.5(+0.01/级)`、无 `attack_effects` |
+| 3 | 被动/效果配置 | `skill_passive.json` → `passive_000037`（`attack_effects=[effect_100089]`）；`attack_effect.json` → `effect_100089` `effect_values=[1,1,0.2,1]`、`per_level=[0,0,0.03,0]` |
+| 4 | 运行时装载 | headless 探针：`equipped=[action_100086]`、`learned=[action_100086, passive_000037]`；注入后 `rage_value.max_value=120`；全塔怒耗对照 120 / 80 / 80 / 80 / 40 |
+| 5 | 表现实现 | `attack_effect_sword_rain.gd`（10 把/波、0.3s 一波、随机水平位置、命中即消失并结算伤害）+ `data_attack_action.gd:381`（`sword_rain` → `DataAttackEntityLotFlySword`） |
+| 6 | 复活实现 | `character_effect_handler.gd:732/754/802`（`can_revive` 优先 100089 → `_check_revive_effect` 取 index 3 次数 → `process_reviving` 按 `hp_max × effect[2]` 回血） |
+
+### 核实结论（三点待拍板）
+
+| # | 现象 | 判断 |
+|---|------|------|
+| 1 | 剑雨每把剑**随机水平落点**，多目标时可能大量落空 | 与文案「覆盖整个战场」尚不矛盾；若体感「像没打中」，可改确定性落点（按敌方分布）或提高 `hit_threshold` |
+| 2 | 数据 `release_duration/entity_duration=10`，但实测 `sword_count=100` 使生成窗口只有 **3.0s**（实现取 `ceil(100/10)×0.3`） | 两者不一致：若「释放 10 秒」是设计意图，需把 `sword_count` 提到 ≥340，或让实现以 duration 为准；当前以 `sword_count` 为准 |
+| 3 | `SKILL_PASSIVE_DESC_000037` 文案为空 | 面板/技能说明可能显示空白，建议补文案（属独立小需求，本次未改） |
+
+> 本轮仅只读核实，**未改动任何配置或代码**；探针输出见 `./file/jianling-skill-probe.txt`。
+
 ## 问题与阻塞
 
 | 问题 | 状态 | 备注 |
@@ -265,6 +353,7 @@ y=3:           魇影(2,3)
 | `./file/huanyin-skill-probe.txt` | headless 探针输出：幻音妖后及同级 Boss 的技能配置 vs 运行时已学/已装备技能 |
 | `./file/combat-106009-probe.txt` | headless 探针输出：`combat_106009` 改后构成与落位（队伍 1/2/4 人下均为 1 幻音妖后 + 3 魇影，断言 PASS） |
 | `./file/tower-boss-combats-probe.txt` | headless 探针输出：全塔 5 场守关 Boss 战（`combat_106002` + `106008~106011`）构成与落位（30 断言 PASS） |
+| `./file/jianling-skill-probe.txt` | headless 探针输出：五层 Boss 上古剑灵残魂（`monster_900025`）的技能配置/运行时装载/击体参数/不灭残魂效果值/怒气槽上限（120）全塔怒耗对照 |
 
 临时探针脚本（不入 git）：`../../../work_record_temp/2026-09/2026-09-11/scripts/`下的 `check_huanyin_skill.gd`、`check_combat_106009.gd`、`check_tower_boss_combats.gd`。
 
@@ -281,6 +370,7 @@ y=3:           魇影(2,3)
 - [ ] 真机体验后评估难度：二层 3×魇影（梦魇 50% 沉睡×2 目标）/ 四层 3×罗刹（10 次 50% 均摊）/ 五层 2×噬魂妖将（500% 法术 + 减抗 30%）是否过强
 - [ ] 等用户确认是否为幻音妖后补被动技能；如需要，按「同级 Boss 主动+被动」的标准补一条并加断言测试
 - [ ] 如确认迷魂音波范围不符合「覆盖整层」的设计意图，评估改 `attack_radius` / 目标类型
+- [ ] 五层剑灵：拍板剑雨「释放 10s vs 实际 3s 生成」与「随机落点」是否符合预期；并补 `SKILL_PASSIVE_DESC_000037`（不灭残魂）空白文案
 
 ## 变更记录
 
@@ -291,3 +381,4 @@ y=3:           魇影(2,3)
 | 2026-09-11 10:35 | 按用户选定方案 A 实施：`combat_106009` 关闭 `auto_count` + 改为 1×幻音妖后 + 3×魇影（含落位），headless 断言 PASS，提交 `04bc7bf0` 并 push |
 | 2026-09-11 11:00 | 第三轮：一/三/四层守关 Boss 统一为 1 Boss + 3 攻击型普通怪（含四层因 Boss/石魔无伤害技能改 3×罗刹），全部关闭 `auto_count`；headless 24 断言 PASS；提交 `d40d4c7d` 并 push；五层剑灵战待拍板 |
 | 2026-09-11 11:15 | 第四轮：五层上古剑灵战同步改为 1 剑灵 + 双首妖狼 + 噬魂妖将×2，关闭 `auto_count`，落位统一；headless 探针扩至 5 场共 30 断言 PASS；提交 `634f6588` 并 push → 全塔五层守关 Boss 统一完成 |
+| 2026-09-11 16:35 | 第五轮（只读）：核实五层最终 Boss「上古剑灵残魂」技能——主动 `action_100086` 万剑覆雨（120 怒 / 100 把剑 / 每把 50% 物伤 / 无附加效果）、被动 `passive_000037` 不灭残魂（100% 概率 1s 后 20% 血复活，每场 1 次）；实测怒气槽上限取 rage_cost=120 故可放出；记录「随机落点」「10s 释放 vs 3s 生成」「被动文案为空」三项待拍板 |
