@@ -1,4 +1,14 @@
 ========== 镇妖塔守关 Boss 战构成探针 ==========
+[CHECK] combat_106002 auto_count=false entries=4
+        ✓ combat_106002 auto_count 已关闭
+        ✓ combat_106002 配置条目数 = 4
+        ✓ combat_106002 首条为 Boss(monster_900025)
+        队伍1人 → 4只 { "monster_900025": 1, "monster_006009": 1, "monster_006010": 2 } | PASS | ["monster_900025@(2, 1)", "monster_006009@(1, 2)", "monster_006010@(3, 2)", "monster_006010@(2, 3)"]
+        ✓ combat_106002 队伍1人 构成为 1 Boss + 3 普通怪
+        队伍2人 → 4只 { "monster_900025": 1, "monster_006009": 1, "monster_006010": 2 } | PASS | ["monster_900025@(2, 1)", "monster_006009@(1, 2)", "monster_006010@(3, 2)", "monster_006010@(2, 3)"]
+        ✓ combat_106002 队伍2人 构成为 1 Boss + 3 普通怪
+        队伍4人 → 4只 { "monster_900025": 1, "monster_006009": 1, "monster_006010": 2 } | PASS | ["monster_900025@(2, 1)", "monster_006009@(1, 2)", "monster_006010@(3, 2)", "monster_006010@(2, 3)"]
+        ✓ combat_106002 队伍4人 构成为 1 Boss + 3 普通怪
 [CHECK] combat_106008 auto_count=false entries=4
         ✓ combat_106008 auto_count 已关闭
         ✓ combat_106008 配置条目数 = 4
@@ -39,5 +49,4 @@
         ✓ combat_106011 队伍2人 构成为 1 Boss + 3 普通怪
         队伍4人 → 4只 { "monster_106004": 1, "monster_006008": 3 } | PASS | ["monster_106004@(2, 1)", "monster_006008@(1, 2)", "monster_006008@(3, 2)", "monster_006008@(2, 3)"]
         ✓ combat_106011 队伍4人 构成为 1 Boss + 3 普通怪
-[REF ] combat_106002（五层·上古剑灵）auto_count=true entries=["monster_900025"]
-========== 结果: 24 PASS / 0 FAIL ==========
+========== 结果: 30 PASS / 0 FAIL ==========
