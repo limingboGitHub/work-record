@@ -1,0 +1,43 @@
+========== 镇妖塔守关 Boss 战构成探针 ==========
+[CHECK] combat_106008 auto_count=false entries=4
+        ✓ combat_106008 auto_count 已关闭
+        ✓ combat_106008 配置条目数 = 4
+        ✓ combat_106008 首条为 Boss(monster_106001)
+        队伍1人 → 4只 { "monster_106001": 1, "monster_006001": 1, "monster_006002": 2 } | PASS | ["monster_106001@(2, 1)", "monster_006001@(1, 2)", "monster_006002@(3, 2)", "monster_006002@(2, 3)"]
+        ✓ combat_106008 队伍1人 构成为 1 Boss + 3 普通怪
+        队伍2人 → 4只 { "monster_106001": 1, "monster_006001": 1, "monster_006002": 2 } | PASS | ["monster_106001@(2, 1)", "monster_006001@(1, 2)", "monster_006002@(3, 2)", "monster_006002@(2, 3)"]
+        ✓ combat_106008 队伍2人 构成为 1 Boss + 3 普通怪
+        队伍4人 → 4只 { "monster_106001": 1, "monster_006001": 1, "monster_006002": 2 } | PASS | ["monster_106001@(2, 1)", "monster_006001@(1, 2)", "monster_006002@(3, 2)", "monster_006002@(2, 3)"]
+        ✓ combat_106008 队伍4人 构成为 1 Boss + 3 普通怪
+[CHECK] combat_106009 auto_count=false entries=4
+        ✓ combat_106009 auto_count 已关闭
+        ✓ combat_106009 配置条目数 = 4
+        ✓ combat_106009 首条为 Boss(monster_106002)
+        队伍1人 → 4只 { "monster_106002": 1, "monster_006004": 3 } | PASS | ["monster_106002@(2, 1)", "monster_006004@(1, 2)", "monster_006004@(3, 2)", "monster_006004@(2, 3)"]
+        ✓ combat_106009 队伍1人 构成为 1 Boss + 3 普通怪
+        队伍2人 → 4只 { "monster_106002": 1, "monster_006004": 3 } | PASS | ["monster_106002@(2, 1)", "monster_006004@(1, 2)", "monster_006004@(3, 2)", "monster_006004@(2, 3)"]
+        ✓ combat_106009 队伍2人 构成为 1 Boss + 3 普通怪
+        队伍4人 → 4只 { "monster_106002": 1, "monster_006004": 3 } | PASS | ["monster_106002@(2, 1)", "monster_006004@(1, 2)", "monster_006004@(3, 2)", "monster_006004@(2, 3)"]
+        ✓ combat_106009 队伍4人 构成为 1 Boss + 3 普通怪
+[CHECK] combat_106010 auto_count=false entries=4
+        ✓ combat_106010 auto_count 已关闭
+        ✓ combat_106010 配置条目数 = 4
+        ✓ combat_106010 首条为 Boss(monster_106003)
+        队伍1人 → 4只 { "monster_106003": 1, "monster_006005": 1, "monster_006006": 2 } | PASS | ["monster_106003@(2, 1)", "monster_006005@(1, 2)", "monster_006006@(3, 2)", "monster_006006@(2, 3)"]
+        ✓ combat_106010 队伍1人 构成为 1 Boss + 3 普通怪
+        队伍2人 → 4只 { "monster_106003": 1, "monster_006005": 1, "monster_006006": 2 } | PASS | ["monster_106003@(2, 1)", "monster_006005@(1, 2)", "monster_006006@(3, 2)", "monster_006006@(2, 3)"]
+        ✓ combat_106010 队伍2人 构成为 1 Boss + 3 普通怪
+        队伍4人 → 4只 { "monster_106003": 1, "monster_006005": 1, "monster_006006": 2 } | PASS | ["monster_106003@(2, 1)", "monster_006005@(1, 2)", "monster_006006@(3, 2)", "monster_006006@(2, 3)"]
+        ✓ combat_106010 队伍4人 构成为 1 Boss + 3 普通怪
+[CHECK] combat_106011 auto_count=false entries=4
+        ✓ combat_106011 auto_count 已关闭
+        ✓ combat_106011 配置条目数 = 4
+        ✓ combat_106011 首条为 Boss(monster_106004)
+        队伍1人 → 4只 { "monster_106004": 1, "monster_006008": 3 } | PASS | ["monster_106004@(2, 1)", "monster_006008@(1, 2)", "monster_006008@(3, 2)", "monster_006008@(2, 3)"]
+        ✓ combat_106011 队伍1人 构成为 1 Boss + 3 普通怪
+        队伍2人 → 4只 { "monster_106004": 1, "monster_006008": 3 } | PASS | ["monster_106004@(2, 1)", "monster_006008@(1, 2)", "monster_006008@(3, 2)", "monster_006008@(2, 3)"]
+        ✓ combat_106011 队伍2人 构成为 1 Boss + 3 普通怪
+        队伍4人 → 4只 { "monster_106004": 1, "monster_006008": 3 } | PASS | ["monster_106004@(2, 1)", "monster_006008@(1, 2)", "monster_006008@(3, 2)", "monster_006008@(2, 3)"]
+        ✓ combat_106011 队伍4人 构成为 1 Boss + 3 普通怪
+[REF ] combat_106002（五层·上古剑灵）auto_count=true entries=["monster_900025"]
+========== 结果: 24 PASS / 0 FAIL ==========
