@@ -1,0 +1,78 @@
+{
+  "meta": {
+    "model": "Qwen-Image-2.1",
+    "runtime": "ComfyUI portable INT8 DiT + W4A8 TE + BF16 VAE",
+    "resolution": 512,
+    "steps": 20,
+    "cfg": 1,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "template_rules": {
+      "rgba_github": "This is an RGBA image with transparency. <your description>. The image has alpha channel and the background is transparent.",
+      "rgba_comfy": "This is an RGBA format image with transparency. <your description>. The image has an alpha channel and a transparent background.",
+      "t2i_footer": "Absolutely no text, no typography, no letters, no words, no numbers, no logos, no watermark, no captions, pure imagery only."
+    },
+    "sources": [
+      "https://github.com/QwenLM/Qwen-Image-2.1",
+      "https://github.com/Comfy-Org/workflow_templates/blob/main/templates/image_qwen_image_2_1_t2i.json"
+    ]
+  },
+  "prompts": [
+    {
+      "id": "B01",
+      "style": "greyscale_fashion_editorial",
+      "template": "t2i_official_example_structure",
+      "seed": 101,
+      "prompt": "Greyscale fashion editorial portrait of a beautiful East Asian woman tilted slightly upward in three-quarter view, captured with striking high-contrast chiaroscuro lighting. She wears oversized matte black sunglasses and a high-neck structural dress tailored from heavyweight fabric with sculptural pleats and clean seams. Skin texture is hyper-detailed, sculpted by intense razor-sharp studio key light and deep graphite shadows. Background is a mixed-media collage of stark black-and-white geometric planes, overlapping circles, and fine halftone micro-dots. Sharp silhouette, paper cut-out edges, balanced composition, refined runway aesthetic. Absolutely no text, no typography, no letters, no words, no numbers, no logos, no watermark, no captions, pure imagery only."
+    },
+    {
+      "id": "B02",
+      "style": "soft_natural_light_portrait",
+      "template": "t2i_official_example_structure",
+      "seed": 102,
+      "prompt": "Realistic beauty portrait of a young woman with luminous skin and soft loose hair, photographed in gentle morning window light. She wears a cream linen blouse; warm bounce light fills the shadows; delicate catchlights in the eyes; natural pores and fine facial detail; shallow depth of field with a muted sage-green interior softly blurred behind her. Calm confident expression, timeless editorial photography, 85mm lens look, clean color grading. Absolutely no text, no typography, no letters, no words, no numbers, no logos, no watermark, no captions, pure imagery only."
+    },
+    {
+      "id": "B03",
+      "style": "cyberpunk_neon_beauty",
+      "template": "t2i_official_example_structure",
+      "seed": 103,
+      "prompt": "Cinematic cyberpunk beauty portrait of a stylish woman on a rain-slick city street at night. Magenta and cyan neon signs reflect on wet pavement and glass; volumetric fog; thin light streaks from traffic; she wears a glossy black tech-wear jacket with subtle iridescent trim and silver ear cuffs. Specular highlights on lips and cheekbones, dramatic rim light separating her from the dark alley background, futuristic yet elegant mood, ultra-detailed skin and fabric textures. Absolutely no text, no typography, no letters, no words, no numbers, no logos, no watermark, no captions, pure imagery only."
+    },
+    {
+      "id": "B04",
+      "style": "classical_oil_painting",
+      "template": "t2i_official_example_structure",
+      "seed": 104,
+      "prompt": "Classical oil painting portrait of a graceful woman in a museum gallery, rendered in the style of 19th-century academic art. Rich impasto brushwork, warm umber and ivory palette, soft chiaroscuro, deep crimson velvet dress with gold embroidery, delicate pearl earrings. Background suggests dark carved wood and a faint gilded frame. Painterly canvas texture, refined facial modeling, timeless aristocratic elegance, museum lighting from the upper left. Absolutely no text, no typography, no letters, no words, no numbers, no logos, no watermark, no captions, pure imagery only."
+    },
+    {
+      "id": "B05",
+      "style": "street_fashion_photography",
+      "template": "t2i_official_example_structure",
+      "seed": 105,
+      "prompt": "Street fashion photography of a beautiful woman walking through a modern city plaza in late afternoon sun. She wears an oversized camel coat, white shirt, tailored trousers, and minimalist leather loafers; motion in her hair and coat hem; golden-hour side light with long geometric shadows from nearby architecture. Candid mid-stride pose, confident stride, slightly low angle, clean urban concrete and glass backdrop, contemporary editorial energy, natural color science. Absolutely no text, no typography, no letters, no words, no numbers, no logos, no watermark, no captions, pure imagery only."
+    },
+    {
+      "id": "B06",
+      "style": "neo_chinese_aesthetic",
+      "template": "t2i_official_example_structure",
+      "seed": 106,
+      "prompt": "Elegant neo-Chinese aesthetic portrait of a beautiful woman in flowing silk hanfu-inspired attire, standing beside a misty lotus pond at dusk. Soft ink-wash atmosphere, muted celadon and ivory tones, delicate gold hairpin, translucent gauze sleeves catching gentle breeze. Subtle traditional garden architecture blurred in the distance, poetic lighting, refined makeup with soft red lip, serene expression, high-end cultural fashion editorial mood. Absolutely no text, no typography, no letters, no words, no numbers, no logos, no watermark, no captions, pure imagery only."
+    },
+    {
+      "id": "B07",
+      "style": "rgba_sticker_beauty",
+      "template": "rgba_github_official",
+      "seed": 107,
+      "prompt": "This is an RGBA image with transparency. A cute stylized beauty character sticker, half-body portrait of a smiling young woman with a neat ponytail, pastel pink jacket, clean bold shapes, soft cel shading, friendly expression, sticker-style outline, suitable for die-cut merchandise. The image has alpha channel and the background is transparent."
+    },
+    {
+      "id": "B08",
+      "style": "rgba_fashion_cutout",
+      "template": "rgba_comfy_official",
+      "seed": 108,
+      "prompt": "This is an RGBA format image with transparency. Full-body fashion cutout of a beautiful model in a minimalist white dress and nude heels, standing pose with one hand on hip, studio fashion photography, crisp edges, even soft light, high detail on fabric folds and hair strands. The image has an alpha channel and a transparent background."
+    }
+  ]
+}
